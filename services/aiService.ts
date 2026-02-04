@@ -9,19 +9,38 @@ import { EMOTIONS } from "../constants/index";
 export const aiService = {
   generateInsight: async (records: EmotionRecord[], profile: UserProfile | null, activities: Activity[]) => {
     // A chave é injetada pelo Vite durante o build na Vercel
-    const API_KEY = process.env.API_KEY;
+    const RAW_KEY = process.env.API_KEY || "";
     const ENDPOINT = "https://api.siliconflow.cn/v1/chat/completions";
     const MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
-    // Debug log para o desenvolvedor no console (não exibe a chave toda)
-    console.log("Status da API Key:", !!API_KEY ? `Presente (Inicia com ${API_KEY.substring(0, 4)}...)` : "Ausente");
+    // 1. Limpeza rigorosa da chave
+    let cleanKey = RAW_KEY.trim();
+    
+    // Remove "API_KEY=" se estiver no valor
+    if (cleanKey.startsWith("API_KEY=")) {
+      cleanKey = cleanKey.replace("API_KEY=", "");
+    }
+    
+    // Remove "Bearer " se o usuário colou junto
+    if (cleanKey.toLowerCase().startsWith("bearer ")) {
+      cleanKey = cleanKey.substring(7);
+    }
+    
+    cleanKey = cleanKey.trim();
 
-    if (!API_KEY || API_KEY === "undefined" || API_KEY === "") {
-      return "Erro de Configuração: A chave API não foi injetada no build. Verifique as variáveis de ambiente na Vercel e faça um novo 'Redeploy'.";
+    // Logs de diagnóstico (visíveis no F12 do navegador)
+    console.log("--- Depuração EmotiTime ---");
+    console.log("Tamanho da chave detectada:", cleanKey.length);
+    if (cleanKey.length > 0) {
+      console.log("Prefixo da chave:", cleanKey.substring(0, 7) + "...");
+      console.log("Sufixo da chave:", "..." + cleanKey.substring(cleanKey.length - 4));
+    } else {
+      console.warn("ALERTA: A chave API está vazia!");
     }
 
-    // Caso o usuário tenha colado "API_KEY=sk-..." por engano no valor da variável
-    const cleanKey = API_KEY.startsWith("API_KEY=") ? API_KEY.split("=")[1] : API_KEY;
+    if (!cleanKey || cleanKey === "undefined") {
+      return "Erro: Variável API_KEY não definida na Vercel. Adicione a chave e faça um 'Redeploy'.";
+    }
 
     try {
       if (records.length === 0) return null;
@@ -47,8 +66,9 @@ export const aiService = {
       const response = await fetch(ENDPOINT, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${cleanKey.trim()}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${cleanKey}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
           model: MODEL,
@@ -64,28 +84,32 @@ export const aiService = {
       });
 
       if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({}));
-        console.error("SiliconFlow Detailed Error:", errorBody);
+        // Tenta ler como texto primeiro para não falhar se não for JSON
+        const rawErrorText = await response.text();
+        let errorMessage = "Erro desconhecido";
         
-        const serverMessage = errorBody.message || errorBody.error?.message || "Erro desconhecido";
-        
-        if (response.status === 401) {
-          return `Não Autorizado (401): ${serverMessage}. Verifique se a chave sk-... está correta e tem saldo na SiliconFlow.`;
-        }
-        
-        if (response.status === 402) {
-          return "Saldo Insuficiente na SiliconFlow. Verifique seus créditos.";
+        try {
+          const errorJson = JSON.parse(rawErrorText);
+          errorMessage = errorJson.message || errorJson.error?.message || rawErrorText;
+        } catch (e) {
+          errorMessage = rawErrorText || `Status ${response.status}`;
         }
 
-        return `Erro na API (${response.status}): ${serverMessage}`;
+        console.error(`Erro SiliconFlow (${response.status}):`, errorMessage);
+        
+        if (response.status === 401) {
+          return `Não Autorizado (401): ${errorMessage}. Dica: Verifique se sua chave da SiliconFlow está ativa e se você não incluiu aspas no painel da Vercel.`;
+        }
+        
+        return `Erro ${response.status}: ${errorMessage}`;
       }
 
       const data = await response.json();
       return data.choices[0].message.content.trim();
 
     } catch (error: any) {
-      console.error("AI Insight Generation Failed:", error);
-      return `Falha na conexão: ${error.message || "Verifique sua internet."}`;
+      console.error("Erro de conexão com a IA:", error);
+      return `Erro de conexão: ${error.message}. Verifique se seu navegador está bloqueando a requisição.`;
     }
   }
 };
