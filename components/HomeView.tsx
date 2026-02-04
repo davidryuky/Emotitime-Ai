@@ -36,6 +36,12 @@ const HomeView: React.FC<HomeViewProps> = ({
 
   const themeData = THEMES.find(t => t.id === currentTheme) || THEMES[0];
 
+  // Extração da cor base para estilização dinâmica (ex: emerald, blue, rose)
+  const colorBase = useMemo(() => {
+    // Exemplo: "text-emerald-400" -> "emerald"
+    return themeData.primaryColor.replace('text-', '').split('-')[0] || 'emerald';
+  }, [themeData]);
+
   // Cálculo dinâmico de registros de hoje
   const todayRecordsCount = useMemo(() => {
     const todayStr = new Date().toISOString().split('T')[0];
@@ -163,28 +169,29 @@ const HomeView: React.FC<HomeViewProps> = ({
           </div>
         </div>
 
-        {/* Eco das Emoções - Visível apenas após 3 registros */}
+        {/* Eco das Emoções - Totalmente sincronizado com o Tema do Espaço */}
         {records.length >= 3 && (
           <div className="pt-6">
              <div className="relative group perspective-1000">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-purple-600/20 blur-3xl opacity-50 group-hover:opacity-80 transition-opacity duration-1000" />
+                {/* Gradiente de fundo dinâmico usando a cor do tema */}
+                <div className={`absolute inset-0 bg-gradient-to-br from-${colorBase}-600/20 to-transparent blur-3xl opacity-50 group-hover:opacity-80 transition-opacity duration-1000`} />
                 
                 <div className="relative bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-[3.5rem] p-8 overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] transition-all duration-700">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-4">
-                           <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-white/5">
-                              <Waves size={24} className="text-indigo-400 animate-pulse" />
+                           <div className={`w-12 h-12 rounded-2xl bg-${colorBase}-500/10 flex items-center justify-center border border-white/5`}>
+                              <Waves size={24} className={`${themeData.primaryColor} animate-pulse`} />
                            </div>
                            <div>
                               <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500">Eco das Emoções</h4>
-                              <p className="text-[8px] font-bold text-indigo-400/50 uppercase tracking-widest">Sincronizado com seu sentir</p>
+                              <p className={`text-[8px] font-bold ${themeData.primaryColor} opacity-50 uppercase tracking-widest`}>Sincronizado com seu sentir</p>
                            </div>
                         </div>
                         
                         {!aiInsight && !isGeneratingAi && (
                           <button 
                             onClick={generateInsight}
-                            className="bg-white text-black text-[10px] font-black px-6 py-3 rounded-full shadow-lg active:scale-90 transition-all hover:bg-indigo-50"
+                            className={`bg-white text-black text-[10px] font-black px-6 py-3 rounded-full shadow-lg active:scale-90 transition-all hover:bg-${colorBase}-50`}
                           >
                             OUVIR ECO
                           </button>
@@ -194,17 +201,17 @@ const HomeView: React.FC<HomeViewProps> = ({
                     {isGeneratingAi ? (
                        <div className="py-8 flex flex-col items-center justify-center gap-4">
                           <div className="relative">
-                             <Loader2 size={40} className="text-indigo-500 animate-spin" />
-                             <Heart size={16} className="absolute inset-0 m-auto text-indigo-400 animate-pulse" />
+                             <Loader2 size={40} className={`${themeData.primaryColor} animate-spin`} />
+                             <Heart size={16} className={`absolute inset-0 m-auto ${themeData.primaryColor} animate-pulse`} />
                           </div>
-                          <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] animate-pulse italic">
+                          <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] animate-pulse italic text-center px-4">
                              Aguardando o silêncio para ouvir seu coração...
                           </p>
                        </div>
                     ) : aiInsight ? (
                        <div className="space-y-6 animate-in fade-in zoom-in-95 duration-1000">
                           <div className="relative">
-                             <div className="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-transparent rounded-full opacity-50" />
+                             <div className={`absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-${colorBase}-500 to-transparent rounded-full opacity-50`} />
                              <p className="text-white font-medium text-lg italic leading-relaxed pl-4 break-words">
                                 "{aiInsight}"
                              </p>
@@ -213,7 +220,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                              <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest">Reflexão gerada agora</span>
                              <button 
                                 onClick={() => setAiInsight(null)}
-                                className="text-[9px] font-black text-indigo-400 uppercase tracking-widest hover:text-white transition-colors"
+                                className={`text-[9px] font-black ${themeData.primaryColor} uppercase tracking-widest hover:text-white transition-colors`}
                              >
                                 Guardar Eco
                              </button>
@@ -241,10 +248,11 @@ const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
+      {/* Card do Mentor/Dicas - Botão Principal Atualizado */}
       <div className={`relative p-8 rounded-[3rem] bg-gradient-to-br ${themeData.bgGradient} border border-white/10 overflow-hidden shadow-2xl transition-all duration-1000 group`}>
         <div className={`absolute -top-20 -right-20 w-64 h-64 ${themeData.accentColor} opacity-10 blur-[80px] rounded-full`} />
         
-        <div className="space-y-6 relative z-10">
+        <div className="space-y-8 relative z-10">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10">
               <MessageCircle size={24} className={`${themeData.primaryColor}`} />
@@ -267,10 +275,15 @@ const HomeView: React.FC<HomeViewProps> = ({
           {mentorNote.actionLabel && (
             <button 
               onClick={() => onTabChange(mentorNote.actionTab)}
-              className="group flex items-center gap-2 px-8 py-3.5 bg-white text-black rounded-full text-xs font-black shadow-xl active:scale-95 transition-all"
+              className="group flex items-center justify-between w-full px-10 py-6 bg-white text-black rounded-[2.5rem] text-sm font-black shadow-[0_20px_40px_rgba(255,255,255,0.15)] active:scale-95 transition-all hover:shadow-[0_25px_50px_rgba(255,255,255,0.2)]"
             >
-              {mentorNote.actionLabel}
-              <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              <div className="flex items-center gap-4">
+                 <Sparkles size={20} className={`${themeData.primaryColor} group-hover:rotate-12 transition-transform`} />
+                 <span className="tracking-tight">{mentorNote.actionLabel}</span>
+              </div>
+              <div className={`w-12 h-12 rounded-full ${themeData.accentColor} flex items-center justify-center text-white group-hover:translate-x-1 transition-all shadow-lg`}>
+                <ChevronRight size={22} strokeWidth={3} />
+              </div>
             </button>
           )}
 

@@ -138,18 +138,18 @@ const JournalView: React.FC<JournalViewProps> = ({ themeId, onClose }) => {
           </header>
 
           <main className="flex-1 p-6 flex flex-col gap-6">
-            {/* Color Palette Selector */}
-            <div className="flex flex-col gap-3">
+            {/* Color Palette Selector - Fixed with Vertical Padding to prevent clipping */}
+            <div className="flex flex-col gap-1">
                <div className="flex items-center gap-2 px-2">
                  <Palette size={12} className="text-gray-600" />
                  <span className="text-[9px] font-black uppercase tracking-widest text-gray-600">Cor do dia</span>
                </div>
-               <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+               <div className="flex items-center gap-3 overflow-x-auto py-5 px-3 -mx-3 scrollbar-hide">
                   {JOURNAL_COLORS.map(c => (
                     <button 
                       key={c.id} 
                       onClick={() => setSelectedColor(c.id)}
-                      className={`w-10 h-10 rounded-full shrink-0 border-2 transition-all active:scale-90 ${c.bg} ${selectedColor === c.id ? 'border-white scale-110 shadow-lg' : 'border-transparent'}`}
+                      className={`w-10 h-10 rounded-full shrink-0 border-2 transition-all active:scale-95 ${c.bg} ${selectedColor === c.id ? 'border-white scale-110 shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'border-transparent'}`}
                     />
                   ))}
                </div>

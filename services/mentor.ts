@@ -57,7 +57,7 @@ export const mentorEngine = {
         greeting,
         content: `Espero que possamos passar muitos momentos bons juntos. Pode contar comigo para ser seu porto seguro.`,
         footnote,
-        actionLabel: "Falar sobre agora",
+        actionLabel: "Revelar como estou agora",
         actionTab: "log",
         moodColor: "opacity-20", 
         recommendations: []
@@ -69,16 +69,16 @@ export const mentorEngine = {
     let recs = [...(TIP_LIBRARY[lastEmotion] || TIP_LIBRARY['neutro'] || [])].slice(0, 3);
 
     let content = `Estou aqui para o que você precisar. Vamos continuar cuidando de você?`;
-    let actionLabel = undefined;
-    let actionTab: any = undefined;
+    let actionLabel: string | undefined = "Expressar meu momento";
+    let actionTab: any = "log";
 
     if (lastEmotion === 'cansado' && activity === 'trabalho') {
       content = `Trabalhar cansado é um desafio. O que acha de uma pausa real de 5 minutos agora?`;
-      actionLabel = "Vamos respirar?";
+      actionLabel = "Quero respirar um pouco";
       actionTab = "breathing";
     } else if (lastEmotion === 'ansioso') {
       content = `Notei que sua mente está correndo. Vamos tentar aterrar seus pés no agora?`;
-      actionLabel = "Acalmar";
+      actionLabel = "Acalmar meu coração";
       actionTab = "breathing";
     }
 
