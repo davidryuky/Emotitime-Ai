@@ -3,15 +3,17 @@ import { EmotionRecord, UserProfile, Activity } from "../types/index";
 import { EMOTIONS } from "../constants/index";
 
 /**
- * AI Service powered by SiliconFlow (Qwen 2.5).
+ * AI Service powered by SiliconFlow (Qwen 2.5 VL).
  * Especializado em suporte para TDAH e ansiedade social.
  */
 export const aiService = {
   generateInsight: async (records: EmotionRecord[], profile: UserProfile | null, activities: Activity[]) => {
     // A chave é injetada do ambiente (Vercel/Vite)
     const RAW_KEY = process.env.API_KEY || "";
-    const ENDPOINT = "https://api.siliconflow.cn/v1/chat/completions";
-    const MODEL = "Qwen/Qwen2.5-7B-Instruct";
+    // Atualizado para o endpoint internacional (.com) para evitar restrições regionais da China (.cn)
+    const ENDPOINT = "https://api.siliconflow.com/v1/chat/completions";
+    // Atualizado para o modelo Qwen2.5-VL solicitado
+    const MODEL = "Qwen/Qwen2.5-VL-7B-Instruct";
 
     // 1. Limpeza rigorosa da chave (remove espaços, aspas e caracteres invisíveis)
     const cleanKey = RAW_KEY.replace(/['"]+/g, '').trim();
@@ -66,10 +68,10 @@ export const aiService = {
         console.error(`Erro SiliconFlow (${response.status}):`, errorText);
         
         if (response.status === 401) {
-          return "Erro 401: Chave não autorizada. Verifique se a chave sk-... está correta e ativa na SiliconFlow.";
+          return "Erro 401: Chave inválida ou não autorizada no endpoint internacional (.com).";
         }
         if (response.status === 403) {
-          return "Erro 403: Acesso negado. Pode ser um bloqueio de região ou IP.";
+          return "Erro 403: Acesso negado. Verifique se o modelo está liberado para sua conta.";
         }
         return `Erro ${response.status}: ${errorText.substring(0, 100)}`;
       }
@@ -79,7 +81,7 @@ export const aiService = {
 
     } catch (error: any) {
       console.error("Erro de conexão SiliconFlow:", error);
-      return `Erro de conexão: ${error.message}. Verifique se o navegador está bloqueando a API.`;
+      return `Erro de conexão: ${error.message}. Isso pode ser um problema de CORS ou rede.`;
     }
   }
 };

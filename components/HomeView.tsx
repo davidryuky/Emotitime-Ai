@@ -170,8 +170,8 @@ const HomeView: React.FC<HomeViewProps> = ({
                         <BrainCircuit size={20} className="text-indigo-400" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Reflexão Qwen 2.5</span>
-                        <span className="text-[8px] font-bold text-gray-700 uppercase tracking-widest">SiliconFlow Engine</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Reflexão Qwen 2.5 VL</span>
+                        <span className="text-[8px] font-bold text-gray-700 uppercase tracking-widest">SiliconFlow Global</span>
                       </div>
                     </div>
                     {!aiInsight && !isGeneratingAi && (
@@ -187,7 +187,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                  {isGeneratingAi ? (
                    <div className="flex flex-col items-center justify-center py-6 space-y-4">
                       <Loader2 size={32} className="text-indigo-400 animate-spin" />
-                      <p className="text-xs font-bold text-gray-500 animate-pulse tracking-widest uppercase">Consultando SiliconFlow...</p>
+                      <p className="text-xs font-bold text-gray-500 animate-pulse tracking-widest uppercase">Consultando SiliconFlow Global...</p>
                    </div>
                  ) : aiInsight ? (
                    <div className="space-y-4 animate-in fade-in zoom-in-95 duration-700">
@@ -203,7 +203,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                    </div>
                  ) : (
                    <p className="text-gray-600 text-sm font-medium">
-                     Clique em refletir para que a SiliconFlow analise seus registros.
+                     Clique em refletir para que a Qwen 2.5 VL analise seus registros via SiliconFlow Global.
                    </p>
                  )}
               </div>
