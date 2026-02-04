@@ -63,7 +63,7 @@ const JournalView: React.FC<JournalViewProps> = ({ themeId, onClose }) => {
               Memórias e Reflexões
             </p>
             <p className="text-[9px] text-gray-500 font-medium leading-relaxed max-w-[200px]">
-              Toque em um dia do calendário para eternizar seus pensamentos e sentimentos.
+              Basta clicar no dia e escrever seus pensamentos. O tempo guardará suas palavras.
             </p>
           </div>
         </div>
