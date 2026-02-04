@@ -1,47 +1,44 @@
 
-import { EmotionRecord, UserProfile, Activity, EmotionId } from "../types/index";
+import { EmotionRecord, UserProfile, Activity } from "../types/index";
 import { EMOTIONS } from "../constants/index";
 
 /**
  * AI Service powered by SiliconFlow (Qwen 2.5 VL).
- * Foco em geração dinâmica e personalizada baseada nos registros reais.
+ * Especializado em suporte para TDAH e ansiedade social.
  */
-
 export const aiService = {
   generateInsight: async (records: EmotionRecord[], profile: UserProfile | null, activities: Activity[]) => {
+    // A chave é injetada do ambiente (Vercel/Vite)
     const RAW_KEY = process.env.API_KEY || "";
     const ENDPOINT = "https://api.siliconflow.com/v1/chat/completions";
     const MODEL = "Qwen/Qwen2.5-VL-7B-Instruct";
-    
-    // Limpeza da chave para evitar caracteres residuais
+
     const cleanKey = RAW_KEY.replace(/['"]+/g, '').trim();
 
     if (!cleanKey || cleanKey === "undefined") {
-      console.error("SiliconFlow API Key não configurada.");
-      return "O silêncio às vezes é o melhor espelho para o que sentimos agora.";
+      return "Sua conexão com a sabedoria profunda está desligada no momento.";
     }
 
     try {
       if (records.length === 0) return null;
 
-      // Prepara os dados contextuais para a IA
-      const recentContext = records.slice(0, 5).map(r => {
+      // Pegamos apenas o essencial para a IA não se perder em dados
+      const recentRecords = records.slice(0, 5).map(r => {
         const emotion = EMOTIONS.find(e => e.id === r.emotionId)?.label;
-        const activity = activities.find(a => a.id === r.activityId)?.label || "em um momento de pausa";
-        const intensity = r.intensity;
-        return `- Senti ${emotion} (Intensidade ${intensity}/5) enquanto estava em: ${activity}${r.note ? `. Nota: ${r.note}` : ''}`;
+        const activity = activities.find(a => a.id === r.activityId)?.label;
+        return `- ${emotion} enquanto ${activity}${r.note ? ` (${r.note})` : ''}`;
       }).join('\n');
 
       const systemInstruction = `
-        Você é o "Eco da Alma" do aplicativo EmotiTime. Seu papel é ler os sentimentos recentes do usuário e devolver um pensamento poético, curto e profundamente humano.
+        Você é a alma do aplicativo EmotiTime. Seu propósito é ser um "Eco das Emoções" — um espelho poético e gentil.
         
-        INSTRUÇÕES DE GERAÇÃO:
-        1. Fale diretamente com ${profile?.name || 'esta alma'}.
-        2. Use os dados fornecidos: se o usuário está triste no trabalho, seu eco deve refletir essa dualidade.
-        3. Seja BREVE: Máximo 15 palavras.
-        4. Estilo: Metafórico, usando elementos da natureza (vento, raízes, maré, luz).
-        5. NUNCA diga "Com base nos seus dados" ou "Eu analisei". Seja a voz de um pensamento interior.
-        6. Se houver notas pessoais nos registros, tente capturar a essência delas no eco.
+        REGRAS DE OURO:
+        1. Fale diretamente com ${profile?.name || 'amigo'}.
+        2. Seja EXTREMAMENTE conciso: use no máximo 2 frases curtas.
+        3. Use uma linguagem poética, metafórica e profundamente acolhedora.
+        4. Nunca dê ordens ou use listas.
+        5. Não aja como assistente. Aja como um pensamento reconfortante que surge no silêncio.
+        6. Seu foco é validar a jornada emocional, por mais difícil que tenha sido.
       `;
 
       const response = await fetch(ENDPOINT, {
@@ -55,7 +52,7 @@ export const aiService = {
           model: MODEL,
           messages: [
             { role: "system", content: systemInstruction },
-            { role: "user", content: `Aqui está o que tenho vivido ultimamente:\n${recentContext}\n\nQual é o meu eco agora?` }
+            { role: "user", content: `Aqui está o que eu vivi recentemente:\n${recentRecords}\n\nMe diga algo reconfortante sobre esse meu momento.` }
           ],
           temperature: 0.8,
           max_tokens: 100,
@@ -65,20 +62,14 @@ export const aiService = {
       });
 
       if (!response.ok) {
-        throw new Error(`Erro na API SiliconFlow: ${response.status}`);
+        return "Sinto muito, não consegui traduzir seus sentimentos em palavras agora. Vamos tentar de novo mais tarde?";
       }
 
       const data = await response.json();
-      let content = data.choices[0].message.content.trim();
-      
-      // Limpeza de aspas desnecessárias que a IA costuma colocar
-      content = content.replace(/^["']|["']$/g, '');
-
-      return content;
+      return data.choices[0].message.content.trim();
 
     } catch (error: any) {
-      console.error("Erro ao gerar eco com Qwen:", error);
-      return "Sua jornada é um fluxo constante; respire e sinta a força de estar presente.";
+      return "Houve um silêncio inesperado na nossa conexão. Tente novamente em um instante.";
     }
   }
 };
