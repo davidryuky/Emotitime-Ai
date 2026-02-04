@@ -4,7 +4,7 @@ import { EmotionRecord, InsightPattern, MentorMessage, UserProfile, ThemeId, Hop
 import { EMOTIONS, THEMES } from '../constants/index';
 import { storage } from '../services/storage';
 import { aiService } from '../services/aiService';
-import { Bell, X, ChevronRight, MessageCircle, Star, Sparkles, Loader2, Heart, Zap, Waves, Share2 } from 'lucide-react';
+import { Bell, X, ChevronRight, MessageCircle, Star, Sparkles, Loader2, Heart, Zap, Waves, Share2, Quote } from 'lucide-react';
 import IconRenderer from './IconRenderer';
 import html2canvas from 'html2canvas';
 
@@ -44,30 +44,49 @@ const HomeView: React.FC<HomeViewProps> = ({
   }, [records]);
 
   const handleShareEco = async () => {
-    if (!ecoCardRef.current) return;
+    if (!ecoCardRef.current || !aiInsight) return;
     setIsSharingEco(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Pequeno delay para garantir que o DOM renderizou o conteúdo da IA
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       const canvas = await html2canvas(ecoCardRef.current, {
         backgroundColor: '#0a0a0a',
         scale: 3,
-        useCORS: true
+        useCORS: true,
+        logging: false,
+        allowTaint: true
       });
+
       canvas.toBlob(async (blob) => {
-        if (!blob) return;
-        const file = new File([blob], 'meu-eco-emotitime.png', { type: 'image/png' });
-        if (navigator.share) {
-          await navigator.share({ title: 'Meu Eco das Emoções', files: [file] });
+        if (!blob) {
+          setIsSharingEco(false);
+          return;
+        }
+
+        const fileName = `meu-eco-${Date.now()}.png`;
+        const file = new File([blob], fileName, { type: 'image/png' });
+
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: 'Eco das minhas Emoções',
+              text: 'Um reflexo poético do meu sentir hoje via EmotiTime.',
+              files: [file],
+            });
+          } catch (error) {
+            console.log('Compartilhamento cancelado');
+          }
         } else {
           const link = document.createElement('a');
-          link.download = 'meu-eco-emotitime.png';
-          link.href = canvas.toDataURL();
+          link.download = fileName;
+          link.href = canvas.toDataURL('image/png');
           link.click();
         }
         setIsSharingEco(false);
-      });
+      }, 'image/png', 1.0);
     } catch (e) {
-      console.error(e);
+      console.error("Erro ao compartilhar eco:", e);
       setIsSharingEco(false);
     }
   };
@@ -80,15 +99,6 @@ const HomeView: React.FC<HomeViewProps> = ({
     setIsGeneratingAi(false);
   };
 
-  const closeCapsule = () => {
-    if (activeCapsule) {
-      storage.deleteHopeCapsule(activeCapsule.id);
-      setCapsules(prev => prev.filter(c => c.id !== activeCapsule.id));
-      setActiveCapsule(null);
-    }
-  };
-
-  // Fix: Replace the inline IIFE with a named function to ensure TypeScript correctly evaluates batteryColor as a string, fixing type errors on style props.
   const getBatteryColor = (level: number) => {
     if (level >= 80) return '#2dd4bf';
     if (level >= 50) return '#fbbf24';
@@ -99,26 +109,37 @@ const HomeView: React.FC<HomeViewProps> = ({
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 relative">
-      {/* Hidden Card for Export */}
-      <div className="fixed -left-[2000px] top-0 pointer-events-none">
+      
+      {/* Hidden Card for Export - DESIGNED TO LOOK AMAZING */}
+      <div className="fixed -left-[4000px] top-0 pointer-events-none">
         <div 
           ref={ecoCardRef}
-          className="w-[400px] h-[600px] bg-[#0a0a0a] p-12 flex flex-col items-center justify-between text-center border-4 border-white/5 rounded-[4rem] relative overflow-hidden"
+          className="w-[450px] h-[650px] bg-[#0a0a0a] p-12 flex flex-col items-center justify-between text-center border-[6px] border-white/5 rounded-[5rem] relative overflow-hidden"
         >
-          <div className={`absolute -top-40 -right-40 w-96 h-96 bg-${colorBase}-500/10 blur-[100px] rounded-full`} />
-          <div className="relative z-10 w-full">
-            <h1 className="text-xl font-black text-gray-500 uppercase tracking-[0.5em] mb-12">Eco das minhas Emoções</h1>
-            <div className={`w-24 h-24 rounded-3xl bg-${colorBase}-500/10 border border-white/10 flex items-center justify-center mx-auto mb-10`}>
-              <Waves size={40} className={themeData.primaryColor} />
+          {/* Decorative Glows */}
+          <div className={`absolute -top-40 -left-40 w-[400px] h-[400px] bg-${colorBase}-500/20 blur-[120px] rounded-full`} />
+          <div className={`absolute -bottom-40 -right-40 w-[300px] h-[300px] bg-blue-500/10 blur-[100px] rounded-full`} />
+          
+          <div className="relative z-10 w-full mt-8">
+            <h1 className="text-[10px] font-black text-white/30 uppercase tracking-[0.8em] mb-16">Eco das minhas Emoções</h1>
+            
+            <div className={`w-28 h-28 rounded-[2.5rem] bg-${colorBase}-500/10 border border-white/10 flex items-center justify-center mx-auto mb-12 shadow-2xl`}>
+              <Waves size={48} className={themeData.primaryColor} />
             </div>
-            <p className="text-white text-2xl font-bold leading-relaxed italic px-4">
-              "{aiInsight}"
-            </p>
+
+            <div className="relative px-4">
+              <Quote size={24} className={`absolute -top-6 -left-2 opacity-20 ${themeData.primaryColor}`} />
+              <p className="text-white text-3xl font-bold leading-[1.6] tracking-tight italic">
+                {aiInsight || "O silêncio também é uma forma de resposta."}
+              </p>
+            </div>
           </div>
-          <div className="relative z-10 w-full flex flex-col items-center gap-4">
-             <div className="flex items-center gap-2 opacity-50">
-               <Sparkles size={14} className={themeData.primaryColor} />
-               <span className="text-[10px] font-black text-white uppercase tracking-[0.6em]">EmotiTime</span>
+
+          <div className="relative z-10 w-full flex flex-col items-center gap-6 pb-8">
+             <div className="h-px w-16 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+             <div className="flex items-center gap-3">
+               <Sparkles size={16} className={themeData.primaryColor} />
+               <span className="text-[11px] font-black text-white/60 uppercase tracking-[0.5em]">EmotiTime</span>
              </div>
           </div>
         </div>
@@ -192,13 +213,18 @@ const HomeView: React.FC<HomeViewProps> = ({
                           <button onClick={generateInsight} className={`bg-white text-black text-[10px] font-black px-6 py-3 rounded-full shadow-lg active:scale-90 transition-all hover:bg-${colorBase}-50`}>OUVIR ECO</button>
                         )}
                         {aiInsight && (
-                          <button 
-                            disabled={isSharingEco}
-                            onClick={handleShareEco} 
-                            className="p-3 bg-white/5 rounded-2xl text-white/40 hover:text-white transition-all active:scale-90"
-                          >
-                            {isSharingEco ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              disabled={isSharingEco}
+                              onClick={handleShareEco} 
+                              className="p-3 bg-white/5 rounded-2xl text-white/40 hover:text-white transition-all active:scale-90 flex items-center gap-2"
+                              title="Compartilhar Eco"
+                            >
+                              {isSharingEco ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
+                              <span className="text-[10px] font-black">SALVAR CARD</span>
+                            </button>
+                            <button onClick={() => setAiInsight(null)} className="p-3 text-gray-600 hover:text-white transition-all"><X size={18}/></button>
+                          </div>
                         )}
                     </div>
                     {isGeneratingAi ? (
@@ -216,8 +242,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                              <p className="text-white font-medium text-lg italic leading-relaxed pl-4 break-words">"{aiInsight}"</p>
                           </div>
                           <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                             <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest">Reflexão gerada agora</span>
-                             <button onClick={() => setAiInsight(null)} className={`text-[9px] font-black ${themeData.primaryColor} uppercase tracking-widest hover:text-white transition-colors`}>Guardar Eco</button>
+                             <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest">Sua voz traduzida pelo tempo</span>
                           </div>
                        </div>
                     ) : (
