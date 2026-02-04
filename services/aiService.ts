@@ -4,7 +4,7 @@ import { EMOTIONS } from "../constants/index";
 
 /**
  * AI Service powered by SiliconFlow (Qwen 2.5).
- * Focado em transformar registros em um "Eco" poético e acolhedor.
+ * Um "Espelho Poético" que reconhece sentimentos e oferece orientações sutis.
  */
 export const aiService = {
   generateInsight: async (records: EmotionRecord[], profile: UserProfile | null, activities: Activity[]) => {
@@ -22,31 +22,32 @@ export const aiService = {
     try {
       if (records.length === 0) return null;
 
-      // Compilação dos dados para o Eco (últimos 7 registros)
+      // Compilação dos dados (últimos 7 registros)
       const contextData = records.slice(0, 7).map(r => {
         const emotion = EMOTIONS.find(e => e.id === r.emotionId)?.label;
         const activity = activities.find(a => a.id === r.activityId)?.label;
-        return `- Sentindo ${emotion} (Intensidade ${r.intensity}/5) enquanto fazia ${activity}. Nota: ${r.note || 'Sem anotações.'}`;
+        return `- Momento: ${emotion} (${r.intensity}/5) enquanto fazia ${activity}. Nota: ${r.note || 'Silêncio.'}`;
       }).join('\n');
 
       const systemInstruction = `
-        Você é o 'Eco das Emoções' do app EmotiTime. Sua voz é poética, densa, acolhedora e minimalista.
+        Você é o 'Eco das Emoções' do app EmotiTime. Sua voz é poética, densa, acolhedora e profundamente observadora.
         
-        Sua missão: Receber registros emocionais e devolver um "Eco" — uma síntese poética de no máximo 2 frases curtas que valide o sentir do usuário.
+        Sua missão é ser um ESPELHO DA ALMA do usuário.
         
-        DIRETRIZES:
+        REGRAS DE OURO:
         1. Fale diretamente com ${profile?.name || 'amigo'}.
-        2. Não dê conselhos nem seja um assistente. Seja um espelho poético.
-        3. Use metáforas naturais (vento, maré, silêncio, raízes).
-        4. O texto deve ser curto o suficiente para caber em um card de compartilhamento.
-        5. Evite clichês excessivos; foque na verdade do que foi registrado.
+        2. RECONHEÇA O SENTIR: Comece ou inclua uma validação clara das emoções que você vê nos registros. Nomeie-as (ex: "Sinto que a sua 'ansiedade' tem visitado seus dias...").
+        3. SEJA UM ESPELHO: Reflita a intensidade e as notas de forma lírica, transformando dados em poesia.
+        4. DICAS SUTIS: Se notar um padrão (como muita exaustão ou tristeza), ofereça uma "dica" em forma de convite poético (ex: "talvez seus olhos precisem descansar no horizonte por um instante" em vez de "faça uma pausa").
+        5. Use imagens da natureza: marés, eclipses, raízes, tempestades, orvalho.
+        6. Curto e Impactante: Máximo 3 frases densas.
       `;
 
       const userPrompt = `
-        Aqui está o que registrei ultimamente:
+        Aqui está o que meu coração registrou recentemente:
         ${contextData}
         
-        Qual é o meu Eco agora?
+        Ecoe meu sentir e me diga o que o tempo sussurra para mim agora.
       `;
 
       const response = await fetch(ENDPOINT, {
@@ -61,8 +62,8 @@ export const aiService = {
             { role: "system", content: systemInstruction },
             { role: "user", content: userPrompt }
           ],
-          temperature: 0.7,
-          max_tokens: 150
+          temperature: 0.85,
+          max_tokens: 200
         })
       });
 
@@ -72,7 +73,7 @@ export const aiService = {
       return data.choices[0].message.content.trim();
     } catch (error) {
       console.error("Erro no AI Service (SiliconFlow):", error);
-      return "Houve um breve silêncio no Eco. Tente novamente em um instante.";
+      return "O espelho do tempo embaçou por um instante. Tente novamente em breve.";
     }
   }
 };
