@@ -43,6 +43,15 @@ const HomeView: React.FC<HomeViewProps> = ({
     return records.filter(r => r.date === todayStr).length;
   }, [records]);
 
+  // Função para determinar o tamanho da fonte dinamicamente baseada no comprimento do texto
+  const getDynamicFontSize = (text: string) => {
+    const length = text.length;
+    if (length > 150) return 'text-xl';
+    if (length > 100) return 'text-2xl';
+    if (length > 60) return 'text-3xl';
+    return 'text-4xl';
+  };
+
   const handleShareEco = async () => {
     if (!ecoCardRef.current || !aiInsight) return;
     setIsSharingEco(true);
@@ -110,32 +119,40 @@ const HomeView: React.FC<HomeViewProps> = ({
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 relative">
       
-      {/* Hidden Card for Export - DESIGNED TO LOOK AMAZING */}
+      {/* Hidden Card for Export - DESIGNED TO LOOK AMAZING AND BE FLEXIBLE */}
       <div className="fixed -left-[4000px] top-0 pointer-events-none">
         <div 
           ref={ecoCardRef}
-          className="w-[450px] h-[650px] bg-[#0a0a0a] p-12 flex flex-col items-center justify-between text-center border-[6px] border-white/5 rounded-[5rem] relative overflow-hidden"
+          className="w-[450px] h-[650px] bg-[#0a0a0a] p-12 flex flex-col items-center border-[6px] border-white/5 rounded-[5rem] relative overflow-hidden"
         >
           {/* Decorative Glows */}
           <div className={`absolute -top-40 -left-40 w-[400px] h-[400px] bg-${colorBase}-500/20 blur-[120px] rounded-full`} />
           <div className={`absolute -bottom-40 -right-40 w-[300px] h-[300px] bg-blue-500/10 blur-[100px] rounded-full`} />
           
-          <div className="relative z-10 w-full mt-8">
-            <h1 className="text-[10px] font-black text-white/30 uppercase tracking-[0.8em] mb-16">Eco das minhas Emoções</h1>
-            
-            <div className={`w-28 h-28 rounded-[2.5rem] bg-${colorBase}-500/10 border border-white/10 flex items-center justify-center mx-auto mb-12 shadow-2xl`}>
-              <Waves size={48} className={themeData.primaryColor} />
-            </div>
+          {/* Header del Card */}
+          <div className="relative z-10 w-full mt-4 mb-8 text-center">
+            <h1 className="text-[10px] font-black text-white/30 uppercase tracking-[0.8em]">Eco das minhas Emoções</h1>
+          </div>
 
-            <div className="relative px-4">
-              <Quote size={24} className={`absolute -top-6 -left-2 opacity-20 ${themeData.primaryColor}`} />
-              <p className="text-white text-3xl font-bold leading-[1.6] tracking-tight italic">
+          {/* Icon Section */}
+          <div className="relative z-10 mb-8">
+            <div className={`w-24 h-24 rounded-[2.2rem] bg-${colorBase}-500/10 border border-white/10 flex items-center justify-center shadow-2xl`}>
+              <Waves size={40} className={themeData.primaryColor} />
+            </div>
+          </div>
+
+          {/* Text Content - Flex-1 makes it grow to fill available space, centering the text */}
+          <div className="relative z-10 flex-1 flex items-center justify-center w-full px-2 text-center">
+            <div className="relative max-h-[350px] overflow-hidden flex items-center">
+              <Quote size={20} className={`absolute -top-6 -left-2 opacity-20 ${themeData.primaryColor}`} />
+              <p className={`text-white font-bold leading-[1.5] tracking-tight italic ${getDynamicFontSize(aiInsight || "")}`}>
                 {aiInsight || "O silêncio também é uma forma de resposta."}
               </p>
             </div>
           </div>
 
-          <div className="relative z-10 w-full flex flex-col items-center gap-6 pb-8">
+          {/* Footer del Card - Fixed at bottom */}
+          <div className="relative z-10 w-full flex flex-col items-center gap-6 mt-8 pb-4">
              <div className="h-px w-16 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
              <div className="flex items-center gap-3">
                <Sparkles size={16} className={themeData.primaryColor} />
@@ -217,11 +234,10 @@ const HomeView: React.FC<HomeViewProps> = ({
                             <button 
                               disabled={isSharingEco}
                               onClick={handleShareEco} 
-                              className="p-3 bg-white/5 rounded-2xl text-white/40 hover:text-white transition-all active:scale-90 flex items-center gap-2"
+                              className="p-3 bg-white/5 rounded-2xl text-white/40 hover:text-white transition-all active:scale-90 flex items-center"
                               title="Compartilhar Eco"
                             >
                               {isSharingEco ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
-                              <span className="text-[10px] font-black">SALVAR CARD</span>
                             </button>
                             <button onClick={() => setAiInsight(null)} className="p-3 text-gray-600 hover:text-white transition-all"><X size={18}/></button>
                           </div>
@@ -269,7 +285,7 @@ const HomeView: React.FC<HomeViewProps> = ({
           {mentorNote.footnote && <div className="pt-4 border-t border-white/10 opacity-40"><p className="text-[11px] font-medium leading-relaxed italic text-white/80">{mentorNote.footnote}</p></div>}
           {mentorNote.actionLabel && (
             <button onClick={() => onTabChange(mentorNote.actionTab)} className="group flex items-center justify-between w-full px-10 py-6 bg-white text-black rounded-[2.5rem] text-sm font-black shadow-[0_20px_40px_rgba(255,255,255,0.15)] active:scale-95 transition-all hover:shadow-[0_25px_50px_rgba(255,255,255,0.2)]">
-              <div className="flex items-center gap-4"><Sparkles size={20} className={`${themeData.primaryColor} group-hover:rotate-12 transition-transform`} /><span className="tracking-tight">{mentorNote.actionLabel}</span></div>
+              <div className="flex items-center gap-4"><Star size={20} className={`${themeData.primaryColor} group-hover:rotate-12 transition-transform`} /><span className="tracking-tight">{mentorNote.actionLabel}</span></div>
               <div className={`w-12 h-12 rounded-full ${themeData.accentColor} flex items-center justify-center text-white group-hover:translate-x-1 transition-all shadow-lg`}><ChevronRight size={22} strokeWidth={3} /></div>
             </button>
           )}
