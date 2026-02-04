@@ -143,7 +143,7 @@ const HistoryView: React.FC<HistoryViewProps> = ({ records, onDelete, themeId, a
                   </h3>
                   
                   <p className="text-gray-500 font-medium italic text-sm mt-1">
-                    {activity?.label}
+                    Enquanto {activity?.label}
                   </p>
 
                   <div className="flex items-center justify-center gap-2 pt-4">
@@ -254,7 +254,9 @@ const HistoryView: React.FC<HistoryViewProps> = ({ records, onDelete, themeId, a
                                 <div className={`${activity?.color || 'text-gray-400'} shrink-0`}>
                                   <IconRenderer name={activity?.iconName || 'HelpCircle'} size={14} />
                                 </div>
-                                <span className="font-bold text-gray-300 tracking-tight uppercase text-[9px] truncate">{activity?.label}</span>
+                                <span className="font-bold text-gray-300 tracking-tight uppercase text-[9px] truncate">
+                                  {activity?.label}
+                                </span>
                               </div>
                             </div>
                             
@@ -282,11 +284,20 @@ const HistoryView: React.FC<HistoryViewProps> = ({ records, onDelete, themeId, a
                                   <div key={i} className={`flex-1 rounded-full transition-all duration-700 ${i < record.intensity ? (emotionTextColor.replace('text-', 'bg-')) : 'bg-white/5 opacity-20'}`} />
                                 ))}
                              </div>
-                             <div className="mb-4"><p className="text-[9px] text-gray-600 font-black uppercase tracking-widest">Intensidade {record.intensity}/5</p></div>
+                             
+                             <div className="mb-4 flex flex-col gap-1">
+                                <p className="text-[9px] text-gray-600 font-black uppercase tracking-widest">Sentimento & Atividade</p>
+                                <p className="text-sm font-bold text-white tracking-tight">
+                                  Sentindo <span className={emotionTextColor}>{emotion?.label}</span> enquanto <span className="text-gray-400">{activity?.label}</span>
+                                </p>
+                             </div>
+
                              {record.note ? (
-                               <p className="text-sm text-gray-300 font-medium italic leading-relaxed pl-1 break-words whitespace-pre-wrap">"{record.note}"</p>
+                               <div className="mt-3 pt-3 border-t border-white/5">
+                                 <p className="text-sm text-gray-300 font-medium italic leading-relaxed pl-1 break-words whitespace-pre-wrap">"{record.note}"</p>
+                               </div>
                              ) : (
-                               <p className="text-[10px] text-gray-800 font-bold uppercase tracking-[0.2em] italic pl-1">Silêncio reflexivo</p>
+                               <p className="text-[10px] text-gray-800 font-bold uppercase tracking-[0.2em] italic pl-1 mt-2">Silêncio reflexivo</p>
                              )}
                           </div>
                         </div>
