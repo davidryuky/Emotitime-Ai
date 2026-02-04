@@ -13,11 +13,15 @@ export const aiService = {
     const ENDPOINT = "https://api.siliconflow.cn/v1/chat/completions";
     const MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
-    // Se após a injeção a chave ainda for nula ou a string "undefined"
-    if (!API_KEY || API_KEY === "undefined") {
-      console.error("Erro: API_KEY não encontrada no ambiente de execução.");
-      return "Configuração pendente: A chave API não foi detectada. Verifique se as variáveis de ambiente na Vercel foram salvas e um novo Deploy foi realizado.";
+    // Debug log para o desenvolvedor no console (não exibe a chave toda)
+    console.log("Status da API Key:", !!API_KEY ? `Presente (Inicia com ${API_KEY.substring(0, 4)}...)` : "Ausente");
+
+    if (!API_KEY || API_KEY === "undefined" || API_KEY === "") {
+      return "Erro de Configuração: A chave API não foi injetada no build. Verifique as variáveis de ambiente na Vercel e faça um novo 'Redeploy'.";
     }
+
+    // Caso o usuário tenha colado "API_KEY=sk-..." por engano no valor da variável
+    const cleanKey = API_KEY.startsWith("API_KEY=") ? API_KEY.split("=")[1] : API_KEY;
 
     try {
       if (records.length === 0) return null;
@@ -43,7 +47,7 @@ export const aiService = {
       const response = await fetch(ENDPOINT, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${API_KEY.trim()}`,
+          'Authorization': `Bearer ${cleanKey.trim()}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -60,20 +64,28 @@ export const aiService = {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error(`SiliconFlow Error (${response.status}):`, errorData);
+        const errorBody = await response.json().catch(() => ({}));
+        console.error("SiliconFlow Detailed Error:", errorBody);
+        
+        const serverMessage = errorBody.message || errorBody.error?.message || "Erro desconhecido";
+        
         if (response.status === 401) {
-          return "Chave de API inválida (401). Verifique se a chave na Vercel está correta.";
+          return `Não Autorizado (401): ${serverMessage}. Verifique se a chave sk-... está correta e tem saldo na SiliconFlow.`;
         }
-        throw new Error(`API Error ${response.status}`);
+        
+        if (response.status === 402) {
+          return "Saldo Insuficiente na SiliconFlow. Verifique seus créditos.";
+        }
+
+        return `Erro na API (${response.status}): ${serverMessage}`;
       }
 
       const data = await response.json();
       return data.choices[0].message.content.trim();
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI Insight Generation Failed:", error);
-      return "Estou aqui com você. Às vezes o silêncio é o melhor suporte. Respire fundo.";
+      return `Falha na conexão: ${error.message || "Verifique sua internet."}`;
     }
   }
 };

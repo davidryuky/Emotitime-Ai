@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   define: {
-    // Isso substitui as chamadas de process.env.API_KEY pelo valor real da variável no build
-    'process.env.API_KEY': JSON.stringify(process.env.API_KEY)
+    // Garante que process.env.API_KEY seja substituído pelo valor real ou undefined no build
+    'process.env.API_KEY': JSON.stringify(process.env.API_KEY || process.env.VITE_API_KEY)
   }
 });
