@@ -53,11 +53,16 @@ const JournalView: React.FC<JournalViewProps> = ({ themeId, onClose }) => {
   return (
     <div className="fixed inset-0 bg-[#0a0a0a] z-[250] animate-in slide-in-from-right duration-500 overflow-y-auto flex flex-col font-satoshi">
       <div className="p-6 pt-14 flex items-start justify-between sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-2xl z-20 border-b border-white/5">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
           <h3 className="text-3xl font-black text-white tracking-tighter leading-tight">Diário</h3>
-          <p className={`text-[10px] uppercase tracking-[0.35em] ${themeData.primaryColor} font-black opacity-80`}>
-            Memórias e Reflexões
-          </p>
+          <div className="space-y-1">
+            <p className={`text-[10px] uppercase tracking-[0.35em] ${themeData.primaryColor} font-black opacity-80`}>
+              Memórias e Reflexões
+            </p>
+            <p className="text-[9px] text-gray-500 font-medium leading-relaxed max-w-[200px]">
+              Toque em um dia do calendário para eternizar seus pensamentos e sentimentos.
+            </p>
+          </div>
         </div>
         <button 
           onClick={onClose} 
@@ -138,7 +143,6 @@ const JournalView: React.FC<JournalViewProps> = ({ themeId, onClose }) => {
           </header>
 
           <main className="flex-1 p-6 flex flex-col gap-6">
-            {/* Color Palette Selector - Fixed with Vertical Padding to prevent clipping */}
             <div className="flex flex-col gap-1">
                <div className="flex items-center gap-2 px-2">
                  <Palette size={12} className="text-gray-600" />
