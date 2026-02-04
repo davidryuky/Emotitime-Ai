@@ -3,43 +3,21 @@ import { EmotionRecord, UserProfile, Activity } from "../types/index";
 import { EMOTIONS } from "../constants/index";
 
 /**
- * AI Service powered by SiliconFlow (Qwen 2.5 7B).
- * Specialized in ADHD support and social anxiety assistance.
+ * AI Service powered by SiliconFlow (Qwen 2.5).
+ * Especializado em suporte para TDAH e ansiedade social.
  */
 export const aiService = {
   generateInsight: async (records: EmotionRecord[], profile: UserProfile | null, activities: Activity[]) => {
-    // A chave é injetada pelo Vite durante o build na Vercel
+    // A chave é injetada do ambiente (Vercel/Vite)
     const RAW_KEY = process.env.API_KEY || "";
     const ENDPOINT = "https://api.siliconflow.cn/v1/chat/completions";
     const MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
-    // 1. Limpeza rigorosa da chave
-    let cleanKey = RAW_KEY.trim();
-    
-    // Remove "API_KEY=" se estiver no valor
-    if (cleanKey.startsWith("API_KEY=")) {
-      cleanKey = cleanKey.replace("API_KEY=", "");
-    }
-    
-    // Remove "Bearer " se o usuário colou junto
-    if (cleanKey.toLowerCase().startsWith("bearer ")) {
-      cleanKey = cleanKey.substring(7);
-    }
-    
-    cleanKey = cleanKey.trim();
-
-    // Logs de diagnóstico (visíveis no F12 do navegador)
-    console.log("--- Depuração EmotiTime ---");
-    console.log("Tamanho da chave detectada:", cleanKey.length);
-    if (cleanKey.length > 0) {
-      console.log("Prefixo da chave:", cleanKey.substring(0, 7) + "...");
-      console.log("Sufixo da chave:", "..." + cleanKey.substring(cleanKey.length - 4));
-    } else {
-      console.warn("ALERTA: A chave API está vazia!");
-    }
+    // 1. Limpeza rigorosa da chave (remove espaços, aspas e caracteres invisíveis)
+    const cleanKey = RAW_KEY.replace(/['"]+/g, '').trim();
 
     if (!cleanKey || cleanKey === "undefined") {
-      return "Erro: Variável API_KEY não definida na Vercel. Adicione a chave e faça um 'Redeploy'.";
+      return "Erro: API_KEY não configurada. Verifique as variáveis de ambiente.";
     }
 
     try {
@@ -52,14 +30,14 @@ export const aiService = {
       }).join('\n');
 
       const systemInstruction = `
-        Você é o cérebro do "EmotiTime", um mentor para pessoas com TDAH e dificuldades sociais.
-        Personalidade: Minimalista, ultra-empática, poética e sem julgamentos.
+        Você é o "EmotiTime", um mentor ultra-empático para pessoas com TDAH e ansiedade social.
+        Sua voz é poética, minimalista e acolhedora.
         
         REGRAS DE RESPOSTA:
         1. Responda diretamente ao usuário: ${profile?.name || 'amigo'}.
         2. Use no máximo 3 frases curtas e acolhedoras.
-        3. Foco em validar o sentimento e dar um micro-passo para o foco ou conforto social.
-        4. Nunca use listas.
+        3. Nunca use listas ou tópicos.
+        4. Valide o sentimento e sugira um micro-passo gentil.
         5. Seja o suporte silencioso que não exige energia social.
       `;
 
@@ -74,7 +52,7 @@ export const aiService = {
           model: MODEL,
           messages: [
             { role: "system", content: systemInstruction },
-            { role: "user", content: `Histórico recente:\n${recentRecords}\n\nGere um insight curto.` }
+            { role: "user", content: `Histórico recente:\n${recentRecords}\n\nGere um insight emocional curto.` }
           ],
           temperature: 0.7,
           max_tokens: 150,
@@ -84,32 +62,24 @@ export const aiService = {
       });
 
       if (!response.ok) {
-        // Tenta ler como texto primeiro para não falhar se não for JSON
-        const rawErrorText = await response.text();
-        let errorMessage = "Erro desconhecido";
-        
-        try {
-          const errorJson = JSON.parse(rawErrorText);
-          errorMessage = errorJson.message || errorJson.error?.message || rawErrorText;
-        } catch (e) {
-          errorMessage = rawErrorText || `Status ${response.status}`;
-        }
-
-        console.error(`Erro SiliconFlow (${response.status}):`, errorMessage);
+        const errorText = await response.text();
+        console.error(`Erro SiliconFlow (${response.status}):`, errorText);
         
         if (response.status === 401) {
-          return `Não Autorizado (401): ${errorMessage}. Dica: Verifique se sua chave da SiliconFlow está ativa e se você não incluiu aspas no painel da Vercel.`;
+          return "Erro 401: Chave não autorizada. Verifique se a chave sk-... está correta e ativa na SiliconFlow.";
         }
-        
-        return `Erro ${response.status}: ${errorMessage}`;
+        if (response.status === 403) {
+          return "Erro 403: Acesso negado. Pode ser um bloqueio de região ou IP.";
+        }
+        return `Erro ${response.status}: ${errorText.substring(0, 100)}`;
       }
 
       const data = await response.json();
       return data.choices[0].message.content.trim();
 
     } catch (error: any) {
-      console.error("Erro de conexão com a IA:", error);
-      return `Erro de conexão: ${error.message}. Verifique se seu navegador está bloqueando a requisição.`;
+      console.error("Erro de conexão SiliconFlow:", error);
+      return `Erro de conexão: ${error.message}. Verifique se o navegador está bloqueando a API.`;
     }
   }
 };

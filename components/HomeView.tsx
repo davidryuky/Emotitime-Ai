@@ -171,7 +171,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Reflexão Qwen 2.5</span>
-                        <span className="text-[8px] font-bold text-gray-700 uppercase tracking-widest">Powered by SiliconFlow</span>
+                        <span className="text-[8px] font-bold text-gray-700 uppercase tracking-widest">SiliconFlow Engine</span>
                       </div>
                     </div>
                     {!aiInsight && !isGeneratingAi && (
@@ -179,7 +179,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                         onClick={generateInsight}
                         className="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-4 py-2 rounded-full border border-indigo-500/20 active:scale-95 transition-all"
                       >
-                        Gerar
+                        Refletir
                       </button>
                     )}
                  </div>
@@ -187,7 +187,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                  {isGeneratingAi ? (
                    <div className="flex flex-col items-center justify-center py-6 space-y-4">
                       <Loader2 size={32} className="text-indigo-400 animate-spin" />
-                      <p className="text-xs font-bold text-gray-500 animate-pulse tracking-widest uppercase">Consultando Qwen...</p>
+                      <p className="text-xs font-bold text-gray-500 animate-pulse tracking-widest uppercase">Consultando SiliconFlow...</p>
                    </div>
                  ) : aiInsight ? (
                    <div className="space-y-4 animate-in fade-in zoom-in-95 duration-700">
@@ -203,7 +203,7 @@ const HomeView: React.FC<HomeViewProps> = ({
                    </div>
                  ) : (
                    <p className="text-gray-600 text-sm font-medium">
-                     O modelo Qwen analisará seus registros para oferecer um insight reconfortante.
+                     Clique em refletir para que a SiliconFlow analise seus registros.
                    </p>
                  )}
               </div>
