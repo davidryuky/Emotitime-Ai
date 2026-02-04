@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, History, Sparkles, Leaf, Brain, Settings, Plus, BookOpen } from 'lucide-react';
+import { Home, History, Sparkles, Leaf, Brain, Settings, Plus, BookOpen, MessageCircle } from 'lucide-react';
 import { ThemeId, EmotionRecord } from '../types/index';
 import { THEMES } from '../constants/index';
 
@@ -13,6 +13,7 @@ interface LayoutProps {
   hideHeader?: boolean;
   onOpenSettings: () => void;
   onOpenJournal: () => void;
+  onOpenWorldEcho: () => void;
   recentRecords?: EmotionRecord[];
 }
 
@@ -25,6 +26,7 @@ const Layout: React.FC<LayoutProps> = ({
   hideHeader = false,
   onOpenSettings,
   onOpenJournal,
+  onOpenWorldEcho,
   recentRecords = []
 }) => {
   const currentTheme = THEMES.find(t => t.id === themeId) || THEMES[0];
@@ -83,12 +85,21 @@ const Layout: React.FC<LayoutProps> = ({
           <button 
             onClick={onOpenJournal}
             className="p-3.5 rounded-2xl bg-white/5 text-gray-400 border border-white/5 hover:border-white/20 hover:text-white transition-all active:scale-90"
+            title="Diário"
           >
             <BookOpen size={20} />
           </button>
           <button 
+            onClick={onOpenWorldEcho}
+            className="p-3.5 rounded-2xl bg-white/5 text-gray-400 border border-white/5 hover:border-white/20 hover:text-white transition-all active:scale-90"
+            title="Eco do Mundo"
+          >
+            <MessageCircle size={20} />
+          </button>
+          <button 
             onClick={onOpenSettings}
             className="p-3.5 rounded-2xl bg-white/5 text-gray-400 border border-white/5 hover:border-white/20 hover:text-white transition-all active:scale-90"
+            title="Configurações"
           >
             <Settings size={20} />
           </button>

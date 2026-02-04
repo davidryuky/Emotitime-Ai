@@ -11,6 +11,7 @@ import ZenMenuView from './components/ZenMenuView';
 import Onboarding from './components/Onboarding';
 import SettingsMenu from './components/SettingsMenu';
 import JournalView from './components/JournalView';
+import WorldEchoView from './components/WorldEchoView';
 import { useRecords } from './hooks/useRecords';
 import { useReminders } from './hooks/useReminders';
 import { storage } from './services/storage';
@@ -25,6 +26,7 @@ const App: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>(storage.getActivities());
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isJournalOpen, setIsJournalOpen] = useState(false);
+  const [isWorldEchoOpen, setIsWorldEchoOpen] = useState(false);
   const [isSharing, setIsSharing] = useState(false); 
   
   const { records, localInsights, addRecord, deleteRecord } = useRecords(profile, activities);
@@ -113,7 +115,7 @@ const App: React.FC = () => {
     }
   };
 
-  const shouldHideUI = isSettingsOpen || isJournalOpen || isSharing;
+  const shouldHideUI = isSettingsOpen || isJournalOpen || isWorldEchoOpen || isSharing;
 
   return (
     <Layout 
@@ -124,6 +126,7 @@ const App: React.FC = () => {
       hideHeader={shouldHideUI || activeTab === 'pomodoro' || activeTab === 'breathing'}
       onOpenSettings={() => setIsSettingsOpen(true)}
       onOpenJournal={() => setIsJournalOpen(true)}
+      onOpenWorldEcho={() => setIsWorldEchoOpen(true)}
       recentRecords={records}
     >
       <div className="pt-2">{renderContent()}</div>
@@ -141,6 +144,13 @@ const App: React.FC = () => {
         <JournalView 
           themeId={themeId}
           onClose={() => setIsJournalOpen(false)}
+        />
+      )}
+
+      {isWorldEchoOpen && (
+        <WorldEchoView 
+          themeId={themeId}
+          onClose={() => setIsWorldEchoOpen(false)}
         />
       )}
     </Layout>
