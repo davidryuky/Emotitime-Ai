@@ -4,7 +4,7 @@ import { EmotionRecord, InsightPattern, MentorMessage, UserProfile, ThemeId, Hop
 import { EMOTIONS, THEMES } from '../constants/index';
 import { storage } from '../services/storage';
 import { aiService } from '../services/aiService';
-import { Bell, X, ChevronRight, MessageCircle, Star, Sparkles, Loader2, BrainCircuit, Zap } from 'lucide-react';
+import { Bell, X, ChevronRight, MessageCircle, Star, Sparkles, Loader2, Heart, Zap, Waves, Quote } from 'lucide-react';
 import IconRenderer from './IconRenderer';
 
 interface HomeViewProps {
@@ -30,7 +30,7 @@ const HomeView: React.FC<HomeViewProps> = ({
   const [capsules, setCapsules] = useState<HopeCapsule[]>(storage.getHopeCapsules());
   const [activeCapsule, setActiveCapsule] = useState<HopeCapsule | null>(null);
   
-  // Estados para IA
+  // Estados para a Reflexão (Eco)
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
 
@@ -53,12 +53,23 @@ const HomeView: React.FC<HomeViewProps> = ({
     }
   };
 
-  const generateInsight = async () => {
-    if (records.length === 0) return;
+  const handleGenerateInsight = async (e: React.MouseEvent) => {
+    // Garantia absoluta de captura de evento no mobile
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (records.length < 3 || isGeneratingAi) return;
+    
     setIsGeneratingAi(true);
-    const insight = await aiService.generateInsight(records, profile, activities);
-    setAiInsight(insight);
-    setIsGeneratingAi(false);
+    
+    try {
+      const insight = await aiService.generateInsight(records, profile, activities);
+      setAiInsight(insight);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsGeneratingAi(false);
+    }
   };
 
   const getBatteryColor = (level: number) => {
@@ -71,7 +82,7 @@ const HomeView: React.FC<HomeViewProps> = ({
   const batteryColor = getBatteryColor(energyLevel);
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-16 relative">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-24 relative">
       
       {showReminderPrompt && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[400px] z-[100] animate-in slide-in-from-top-12 duration-700">
@@ -157,64 +168,91 @@ const HomeView: React.FC<HomeViewProps> = ({
           </div>
         </div>
 
-        {/* AI Insight Card */}
-        <div className="pt-6">
-           <div className={`relative p-8 rounded-[3rem] bg-[#0f0f0f] border border-white/5 overflow-hidden transition-all duration-700 shadow-2xl group`}>
-              <div className={`absolute -top-24 -left-24 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full animate-pulse`} />
-              <div className={`absolute -bottom-24 -right-24 w-64 h-64 bg-purple-500/10 blur-[80px] rounded-full animate-pulse`} style={{ animationDelay: '1s' }} />
-              
-              <div className="relative z-10 space-y-6">
-                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
-                        <BrainCircuit size={20} className="text-indigo-400" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Reflexão Qwen 2.5 VL</span>
-                        <span className="text-[8px] font-bold text-gray-700 uppercase tracking-widest">SiliconFlow Global</span>
-                      </div>
+        {/* Eco das Emoções - Qwen 2.5 Powered Living Card */}
+        {records.length >= 3 && (
+          <div className="pt-6 animate-in slide-in-from-bottom-8 duration-1000">
+             <div className="relative">
+                {/* Glow Background Layer */}
+                <div className="absolute -inset-4 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none animate-pulse" />
+                
+                <div className="relative bg-neutral-900/80 backdrop-blur-3xl border border-white/10 rounded-[3.5rem] p-8 overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.7)]">
+                    {/* Animated Decor */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/30 to-transparent opacity-30 pointer-events-none" />
+                    
+                    <div className="flex items-center justify-between mb-8 relative z-10">
+                        <div className="flex items-center gap-4">
+                           <div className="w-14 h-14 rounded-2xl bg-indigo-500/20 flex items-center justify-center border border-white/10 backdrop-blur-md">
+                              <Waves size={26} className="text-indigo-400" />
+                           </div>
+                           <div className="space-y-0.5">
+                              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">Eco das Emoções</h4>
+                              <p className="text-[8px] font-bold text-indigo-400/80 uppercase tracking-widest">Qwen 2.5 Sintonizando</p>
+                           </div>
+                        </div>
+                        
+                        {!aiInsight && !isGeneratingAi && (
+                          <button 
+                            onClick={handleGenerateInsight}
+                            className="z-[90] relative bg-white text-black text-[10px] font-black px-7 py-4 rounded-full shadow-[0_15px_35px_rgba(255,255,255,0.2)] active:scale-90 transition-all hover:bg-neutral-100 uppercase tracking-widest border-t border-white/50 cursor-pointer touch-manipulation"
+                          >
+                            Sintonizar
+                          </button>
+                        )}
                     </div>
-                    {!aiInsight && !isGeneratingAi && (
-                      <button 
-                        onClick={generateInsight}
-                        className="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-4 py-2 rounded-full border border-indigo-500/20 active:scale-95 transition-all"
-                      >
-                        Refletir
-                      </button>
-                    )}
-                 </div>
 
-                 {isGeneratingAi ? (
-                   <div className="flex flex-col items-center justify-center py-6 space-y-4">
-                      <Loader2 size={32} className="text-indigo-400 animate-spin" />
-                      <p className="text-xs font-bold text-gray-500 animate-pulse tracking-widest uppercase">Consultando SiliconFlow Global...</p>
-                   </div>
-                 ) : aiInsight ? (
-                   <div className="space-y-4 animate-in fade-in zoom-in-95 duration-700">
-                      <p className="text-white/90 leading-relaxed text-lg font-medium italic break-words">
-                        "{aiInsight}"
-                      </p>
-                      <button 
-                        onClick={() => setAiInsight(null)}
-                        className="text-[9px] font-black text-gray-600 uppercase tracking-widest hover:text-gray-400 transition-colors"
-                      >
-                        Limpar Reflexão
-                      </button>
-                   </div>
-                 ) : (
-                   <p className="text-gray-600 text-sm font-medium">
-                     Clique em refletir para que a Qwen 2.5 VL analise seus registros via SiliconFlow Global.
-                   </p>
-                 )}
-              </div>
-           </div>
-        </div>
+                    {isGeneratingAi ? (
+                       <div className="py-12 flex flex-col items-center justify-center gap-6 relative z-10">
+                          <div className="relative flex items-center justify-center">
+                             <div className="absolute w-20 h-20 border-4 border-indigo-500/10 border-t-indigo-400 rounded-full animate-spin" />
+                             <Heart size={24} className="text-indigo-400 animate-pulse" />
+                          </div>
+                          <div className="text-center space-y-1">
+                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] animate-pulse italic">
+                               Traduzindo seu silêncio...
+                            </p>
+                            <p className="text-[8px] text-gray-600 font-bold uppercase tracking-widest">Analisando registros reais</p>
+                          </div>
+                       </div>
+                    ) : aiInsight ? (
+                       <div className="space-y-6 animate-in fade-in zoom-in-95 duration-1000 relative z-10">
+                          <div className="relative pt-2">
+                             <Quote size={20} className="absolute -top-3 -left-3 text-white/5 -scale-x-100" />
+                             <p className="text-white font-medium text-lg italic leading-relaxed tracking-tight pl-3">
+                                "{aiInsight}"
+                             </p>
+                          </div>
+                          
+                          <div className="flex items-center justify-between pt-6 border-t border-white/10">
+                             <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_12px_#6366f1]" />
+                                <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest font-satoshi">Pulso Realizado</span>
+                             </div>
+                             <button 
+                                onClick={() => setAiInsight(null)}
+                                className="z-20 text-[9px] font-black text-indigo-400/80 hover:text-white uppercase tracking-widest transition-colors p-2 active:scale-95"
+                             >
+                                Guardar Eco
+                             </button>
+                          </div>
+                       </div>
+                    ) : (
+                       <div className="py-2 relative z-10">
+                          <p className="text-gray-400 text-sm font-medium leading-relaxed max-w-[260px] opacity-90">
+                             Suas últimas vivências formaram uma frequência única. Vamos ouvir o que ela tem a dizer?
+                          </p>
+                       </div>
+                    )}
+                </div>
+             </div>
+          </div>
+        )}
 
         <div className="pt-6 space-y-1">
           <p className={`${themeData.primaryColor} opacity-60 text-[10px] font-black uppercase tracking-[0.3em]`}>Fluxo de Vida</p>
         </div>
       </section>
 
+      {/* Card do Mentor/Destaque */}
       <div className={`relative p-8 rounded-[3rem] bg-gradient-to-br ${themeData.bgGradient} border border-white/10 overflow-hidden shadow-2xl transition-all duration-1000 group`}>
         <div className={`absolute -top-20 -right-20 w-64 h-64 ${themeData.accentColor} opacity-10 blur-[80px] rounded-full`} />
         
