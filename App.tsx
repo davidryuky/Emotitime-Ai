@@ -8,6 +8,8 @@ import InsightsView from './components/InsightsView';
 import BreathingView from './components/BreathingView';
 import PomodoroView from './components/PomodoroView';
 import ZenMenuView from './components/ZenMenuView';
+import FireView from './components/FireView';
+import GratitudeView from './components/GratitudeView';
 import Onboarding from './components/Onboarding';
 import SettingsMenu from './components/SettingsMenu';
 import JournalView from './components/JournalView';
@@ -17,7 +19,7 @@ import { useReminders } from './hooks/useReminders';
 import { storage } from './services/storage';
 import { UserProfile, ThemeId, Activity } from './types/index';
 
-type Tab = 'home' | 'history' | 'insights' | 'log' | 'breathing' | 'pomodoro' | 'zen';
+type Tab = 'home' | 'history' | 'insights' | 'log' | 'breathing' | 'pomodoro' | 'zen' | 'fire' | 'gratitude';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -108,22 +110,27 @@ const App: React.FC = () => {
       case 'zen':
         return <ZenMenuView themeId={themeId} onSelect={(tool) => setActiveTab(tool)} />;
       case 'breathing':
-        return <BreathingView themeId={themeId} onExit={() => setActiveTab('home')} />;
+        return <BreathingView themeId={themeId} onExit={() => setActiveTab('zen')} />;
       case 'pomodoro':
-        return <PomodoroView themeId={themeId} onExit={() => setActiveTab('home')} />;
+        return <PomodoroView themeId={themeId} onExit={() => setActiveTab('zen')} />;
+      case 'fire':
+        return <FireView themeId={themeId} onExit={() => setActiveTab('zen')} />;
+      case 'gratitude':
+        return <GratitudeView themeId={themeId} onExit={() => setActiveTab('zen')} />;
       default: return null;
     }
   };
 
-  const shouldHideUI = isSettingsOpen || isJournalOpen || isWorldEchoOpen || isSharing;
+  const isZenSubView = ['breathing', 'pomodoro', 'fire', 'gratitude'].includes(activeTab);
+  const shouldHideUI = isSettingsOpen || isJournalOpen || isWorldEchoOpen || isSharing || isZenSubView;
 
   return (
     <Layout 
-      activeTab={(activeTab === 'pomodoro' || activeTab === 'breathing') ? 'zen' : activeTab} 
-      setActiveTab={setActiveTab} 
+      activeTab={isZenSubView ? 'zen' : activeTab as any} 
+      setActiveTab={setActiveTab as any} 
       themeId={themeId} 
-      hideNav={shouldHideUI || activeTab === 'log' || activeTab === 'pomodoro' || activeTab === 'breathing'}
-      hideHeader={shouldHideUI || activeTab === 'pomodoro' || activeTab === 'breathing'}
+      hideNav={shouldHideUI || activeTab === 'log'}
+      hideHeader={shouldHideUI}
       onOpenSettings={() => setIsSettingsOpen(true)}
       onOpenJournal={() => setIsJournalOpen(true)}
       onOpenWorldEcho={() => setIsWorldEchoOpen(true)}

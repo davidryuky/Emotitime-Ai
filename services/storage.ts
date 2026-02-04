@@ -1,6 +1,6 @@
 
 import { STORAGE_KEYS, DEFAULT_ACTIVITIES } from '../constants/index';
-import { EmotionRecord, Activity, ReminderSettings, UserProfile, ThemeId, JournalEntry, HopeCapsule } from '../types/index';
+import { EmotionRecord, Activity, ReminderSettings, UserProfile, ThemeId, JournalEntry, HopeCapsule, GratitudeStar } from '../types/index';
 
 export const storage = {
   getRecords: (): EmotionRecord[] => {
@@ -72,6 +72,16 @@ export const storage = {
   deleteHopeCapsule: (id: string) => {
     const capsules = storage.getHopeCapsules();
     localStorage.setItem(STORAGE_KEYS.CAPSULES, JSON.stringify(capsules.filter(c => c.id !== id)));
+  },
+
+  getGratitudeStars: (): GratitudeStar[] => {
+    const data = localStorage.getItem(STORAGE_KEYS.GRATITUDE);
+    return data ? JSON.parse(data) : [];
+  },
+
+  saveGratitudeStar: (star: GratitudeStar) => {
+    const stars = storage.getGratitudeStars();
+    localStorage.setItem(STORAGE_KEYS.GRATITUDE, JSON.stringify([...stars, star]));
   },
 
   exportData: () => {

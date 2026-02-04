@@ -70,5 +70,6 @@ export const STORAGE_KEYS = {
   PROFILE: 'emotitime_user_profile',
   THEME: 'emotitime_theme',
   JOURNAL: 'emotitime_journal',
-  CAPSULES: 'emotitime_hope_capsules'
+  CAPSULES: 'emotitime_hope_capsules',
+  GRATITUDE: 'emotitime_gratitude_stars'
 };

@@ -24,6 +24,15 @@ export interface HopeCapsule {
   authorEmotion: EmotionId;
 }
 
+export interface GratitudeStar {
+  id: string;
+  message: string;
+  timestamp: number;
+  x: number; // 0-100 percentage
+  y: number; // 0-100 percentage
+  size: number;
+}
+
 export interface ThemeConfig {
   id: ThemeId;
   label: string;
