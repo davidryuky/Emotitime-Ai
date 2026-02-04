@@ -46,7 +46,8 @@ const HomeView: React.FC<HomeViewProps> = ({
   // Função para determinar o tamanho da fonte dinamicamente baseada no comprimento do texto
   const getDynamicFontSize = (text: string) => {
     const length = text.length;
-    if (length > 150) return 'text-xl';
+    if (length > 180) return 'text-lg';
+    if (length > 140) return 'text-xl';
     if (length > 100) return 'text-2xl';
     if (length > 60) return 'text-3xl';
     return 'text-4xl';
@@ -130,29 +131,29 @@ const HomeView: React.FC<HomeViewProps> = ({
           <div className={`absolute -bottom-40 -right-40 w-[300px] h-[300px] bg-blue-500/10 blur-[100px] rounded-full`} />
           
           {/* Header del Card */}
-          <div className="relative z-10 w-full mt-4 mb-8 text-center">
+          <div className="relative z-10 w-full mt-4 mb-6 text-center">
             <h1 className="text-[10px] font-black text-white/30 uppercase tracking-[0.8em]">Eco das minhas Emoções</h1>
           </div>
 
           {/* Icon Section */}
-          <div className="relative z-10 mb-8">
-            <div className={`w-24 h-24 rounded-[2.2rem] bg-${colorBase}-500/10 border border-white/10 flex items-center justify-center shadow-2xl`}>
-              <Waves size={40} className={themeData.primaryColor} />
+          <div className="relative z-10 mb-6 shrink-0">
+            <div className={`w-20 h-20 rounded-[2rem] bg-${colorBase}-500/10 border border-white/10 flex items-center justify-center shadow-2xl`}>
+              <Waves size={32} className={themeData.primaryColor} />
             </div>
           </div>
 
           {/* Text Content - Flex-1 makes it grow to fill available space, centering the text */}
-          <div className="relative z-10 flex-1 flex items-center justify-center w-full px-2 text-center">
-            <div className="relative max-h-[350px] overflow-hidden flex items-center">
-              <Quote size={20} className={`absolute -top-6 -left-2 opacity-20 ${themeData.primaryColor}`} />
-              <p className={`text-white font-bold leading-[1.5] tracking-tight italic ${getDynamicFontSize(aiInsight || "")}`}>
+          <div className="relative z-10 flex-1 flex items-center justify-center w-full px-4 text-center overflow-hidden">
+            <div className="relative w-full flex flex-col items-center justify-center">
+              <Quote size={18} className={`mb-4 opacity-20 ${themeData.primaryColor}`} />
+              <p className={`text-white font-bold leading-[1.6] tracking-tight italic ${getDynamicFontSize(aiInsight || "")}`}>
                 {aiInsight || "O silêncio também é uma forma de resposta."}
               </p>
             </div>
           </div>
 
           {/* Footer del Card - Fixed at bottom */}
-          <div className="relative z-10 w-full flex flex-col items-center gap-6 mt-8 pb-4">
+          <div className="relative z-10 w-full flex flex-col items-center gap-6 mt-6 pb-2 shrink-0">
              <div className="h-px w-16 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
              <div className="flex items-center gap-3">
                <Sparkles size={16} className={themeData.primaryColor} />
@@ -234,12 +235,18 @@ const HomeView: React.FC<HomeViewProps> = ({
                             <button 
                               disabled={isSharingEco}
                               onClick={handleShareEco} 
-                              className="p-3 bg-white/5 rounded-2xl text-white/40 hover:text-white transition-all active:scale-90 flex items-center"
+                              className="p-3 bg-white/10 rounded-2xl text-white/40 hover:text-white hover:bg-white/20 transition-all active:scale-90 flex items-center"
                               title="Compartilhar Eco"
                             >
                               {isSharingEco ? <Loader2 size={18} className="animate-spin" /> : <Share2 size={18} />}
                             </button>
-                            <button onClick={() => setAiInsight(null)} className="p-3 text-gray-600 hover:text-white transition-all"><X size={18}/></button>
+                            <button 
+                              onClick={() => setAiInsight(null)} 
+                              className="p-3 bg-white/10 rounded-2xl text-gray-400 hover:text-white hover:bg-rose-500/20 transition-all active:scale-90 flex items-center justify-center"
+                              title="Fechar Insight"
+                            >
+                              <X size={18} />
+                            </button>
                           </div>
                         )}
                     </div>
