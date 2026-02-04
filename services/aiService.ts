@@ -8,14 +8,15 @@ import { EMOTIONS } from "../constants/index";
  */
 export const aiService = {
   generateInsight: async (records: EmotionRecord[], profile: UserProfile | null, activities: Activity[]) => {
-    // API Key must be set in the environment (e.g., Vercel Variables) as API_KEY
+    // A chave é injetada pelo Vite durante o build na Vercel
     const API_KEY = process.env.API_KEY;
     const ENDPOINT = "https://api.siliconflow.cn/v1/chat/completions";
     const MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
-    if (!API_KEY) {
-      console.error("Erro: API_KEY não encontrada no ambiente.");
-      return "Configuração pendente: Insira sua chave API nas variáveis de ambiente.";
+    // Se após a injeção a chave ainda for nula ou a string "undefined"
+    if (!API_KEY || API_KEY === "undefined") {
+      console.error("Erro: API_KEY não encontrada no ambiente de execução.");
+      return "Configuração pendente: A chave API não foi detectada. Verifique se as variáveis de ambiente na Vercel foram salvas e um novo Deploy foi realizado.";
     }
 
     try {
@@ -62,7 +63,7 @@ export const aiService = {
         const errorData = await response.json().catch(() => ({}));
         console.error(`SiliconFlow Error (${response.status}):`, errorData);
         if (response.status === 401) {
-          return "Chave de API inválida ou expirada. Verifique suas configurações na Vercel.";
+          return "Chave de API inválida (401). Verifique se a chave na Vercel está correta.";
         }
         throw new Error(`API Error ${response.status}`);
       }
