@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { EmotionRecord, InsightPattern, MentorMessage, UserProfile, ThemeId, HopeCapsule, Activity } from '../types/index';
 import { EMOTIONS, THEMES } from '../constants/index';
 import { storage } from '../services/storage';
@@ -35,6 +35,12 @@ const HomeView: React.FC<HomeViewProps> = ({
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
 
   const themeData = THEMES.find(t => t.id === currentTheme) || THEMES[0];
+
+  // Cálculo dinâmico de registros de hoje
+  const todayRecordsCount = useMemo(() => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    return records.filter(r => r.date === todayStr).length;
+  }, [records]);
 
   useEffect(() => {
     const lastRecord = records[0];
@@ -216,7 +222,12 @@ const HomeView: React.FC<HomeViewProps> = ({
                     ) : (
                        <div className="py-2">
                           <p className="text-gray-400 text-sm font-medium leading-relaxed">
-                             Seu dia teve {records.slice(0, 3).length} momentos marcantes. Quer ouvir o que eles dizem?
+                             {todayRecordsCount === 0 
+                               ? "Você ainda não registrou nenhum momento hoje. Que tal começar agora?" 
+                               : todayRecordsCount === 1 
+                                 ? `Seu dia teve ${todayRecordsCount} momento marcante. Quer ouvir o que ele diz?`
+                                 : `Seu dia teve ${todayRecordsCount} momentos marcantes. Quer ouvir o que eles dizem?`
+                             }
                           </p>
                        </div>
                     )}
